@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio | FerreteríaPro{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-dark text-white py-5 mb-5" style="background: linear-gradient(135deg, #1f242d 0%, #343a40 100%);">
+    <div class="container py-4">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <span class="badge bg-warning text-dark px-3 py-2 text-uppercase fw-bold mb-3">Distribuidor Oficial</span>
+                <h1 class="display-4 fw-black text-white">Herramientas & Materiales de Alta Exigencia</h1>
+                <p class="lead text-light mb-4">Equipa tu taller o proyecto con las marcas líderes del mercado. Stock real garantizado y despacho rápido.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="/ferreteria/catalogo/" class="btn btn-ferre btn-lg px-4">
+                        <i class="bi bi-box-seam me-2"></i>Explorar Catálogo
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center d-none d-lg-block">
+                <i class="bi bi-shield-fill-check text-warning" style="font-size: 8rem;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Beneficios -->
+<div class="container mb-5">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="p-3 bg-white border rounded shadow-sm d-flex align-items-center gap-3">
+                <i class="bi bi-truck fs-1 text-ferre-primary"></i>
+                <div>
+                    <h6 class="fw-bold mb-0">Despacho Rápido</h6>
+                    <small class="text-muted">Envíos a obra y domicilio</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 bg-white border rounded shadow-sm d-flex align-items-center gap-3">
+                <i class="bi bi-award fs-1 text-ferre-primary"></i>
+                <div>
+                    <h6 class="fw-bold mb-0">Garantía Asegurada</h6>
+                    <small class="text-muted">Productos certificados</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 bg-white border rounded shadow-sm d-flex align-items-center gap-3">
+                <i class="bi bi-credit-card fs-1 text-ferre-primary"></i>
+                <div>
+                    <h6 class="fw-bold mb-0">Pago Seguro</h6>
+                    <small class="text-muted">Tarjetas y transferencia</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Productos Destacados -->
+<div class="container mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Productos Destacados</h3>
+            <p class="text-muted mb-0">Artículos con disponibilidad inmediata</p>
+        </div>
+        <a href="/ferreteria/catalogo/" class="btn btn-outline-dark btn-sm">Ver todos <i class="bi bi-arrow-right ms-1"></i></a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for producto in productos %}
+        <div class="col">
+            <div class="card h-100 product-card border-0 shadow-sm">
+                <div class="product-img-wrapper p-3">
+                    {% if producto.imagen %}
+                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="img-fluid">
+                    {% else %}
+                        <i class="bi bi-card-image text-muted display-4"></i>
+                    {% endif %}
+                </div>
+
+                <div class="card-body d-flex flex-column">
+                    <span class="badge bg-light text-secondary border align-self-start mb-2">
+                        {{ producto.categoria }}
+                    </span>
+
+                    <h6 class="card-title fw-bold text-dark mb-2 text-truncate" title="{{ producto.nombre }}">
+                        {{ producto.nombre }}
+                    </h6>
+
+                    <div class="mb-3">
+                        {% if producto.stock > 0 %}
+                            <small class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>En Stock ({{ producto.stock }})</small>
+                        {% else %}
+                            <small class="text-danger fw-bold"><i class="bi bi-x-circle-fill me-1"></i>Agotado</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-auto d-flex align-items-center justify-content-between pt-2 border-top">
+                        <span class="fs-5 fw-bold text-dark">${{ producto.precio }}</span>
+                        
+                        <button type="button" 
+                                class="btn btn-ferre btn-sm btn-agregar-carrito" 
+                                data-id="{{ producto.id }}" 
+                                data-nombre="{{ producto.nombre }}"
+                                {% if producto.stock <= 0 %}disabled{% endif %}>
+                            <i class="bi bi-cart-plus me-1"></i>Añadir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">No hay productos disponibles actualmente.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Carrito de Compras | FerreteríaPro{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="fw-bold mb-4 pb-2 border-bottom">
+        <i class="bi bi-cart3 text-ferre-primary me-2"></i>Carro de Compras
+    </h2>
+
+    {% if items_carrito %}
+    <div class="row g-4" id="contenedor-carrito-activo">
+        <!-- Tabla de Productos -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col" style="min-width: 250px;">Producto</th>
+                                <th scope="col">Precio</th>
+                                <th scope="col" style="width: 150px;">Cantidad</th>
+                                <th scope="col">Subtotal</th>
+                                <th scope="col" class="text-end">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items_carrito %}
+                            <tr class="fila-producto" 
+                                data-id="{{ item.producto.id }}" 
+                                data-precio="{{ item.producto.precio }}" 
+                                data-stock="{{ item.producto.stock }}">
+                                <!-- Imagen y Nombre -->
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div style="width: 55px; height: 55px; background-color: #f8f9fa;" class="d-flex align-items-center justify-content-center border rounded">
+                                            {% if item.producto.imagen %}
+                                                <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                                            {% else %}
+                                                <i class="bi bi-image text-muted"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-0 text-dark">{{ item.producto.nombre }}</h6>
+                                            <small class="text-muted">Stock disp: <span class="stock-maximo">{{ item.producto.stock }}</span></small>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Precio Unitario -->
+                                <td class="fw-semibold">${{ item.producto.precio }}</td>
+
+                                <!-- Control JS: Botones + y - -->
+                                <td>
+                                    <div class="input-group input-group-sm" style="max-width: 120px;">
+                                        <button class="btn btn-outline-secondary btn-restar" type="button"><i class="bi bi-dash"></i></button>
+                                        <input type="number" 
+                                               class="form-control text-center input-cantidad" 
+                                               value="{{ item.cantidad }}" 
+                                               min="1" 
+                                               max="{{ item.producto.stock }}" 
+                                               readonly>
+                                        <button class="btn btn-outline-secondary btn-sumar" type="button"><i class="bi bi-plus"></i></button>
+                                    </div>
+                                </td>
+
+                                <!-- Subtotal Dinámico -->
+                                <td class="fw-bold text-dark subtotal-fila">${{ item.subtotal }}</td>
+
+                                <!-- Botón Eliminar Fila -->
+                                <td class="text-end">
+                                    <button type="button" class="btn btn-outline-danger btn-sm btn-eliminar-fila" title="Eliminar del carrito">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Botones auxiliares -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <a href="/ferreteria/catalogo/" class="btn btn-outline-dark">
+                    <i class="bi bi-arrow-left me-2"></i>Seguir Comprando
+                </a>
+                <button type="button" id="btn-vaciar-todo" class="btn btn-outline-danger">
+                    <i class="bi bi-trash me-1"></i>Vaciar Carrito
+                </button>
+            </div>
+        </div>
+
+        <!-- Tarjeta de Resumen y Totales -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark text-white fw-bold py-3">
+                    Resumen de Compra
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal Neto:</span>
+                        <span class="fw-semibold" id="resumen-neto">${{ subtotal_neto|default:0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">IVA (19%):</span>
+                        <span class="fw-semibold" id="resumen-iva">${{ total_iva|default:0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Despacho:</span>
+                        <span class="text-success fw-semibold">Gratis</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fs-5 fw-bold">Total a Pagar:</span>
+                        <span class="fs-4 fw-black text-ferre-primary" id="resumen-total">${{ total_general|default:0 }}</span>
+                    </div>
+
+                    <button type="button" id="btn-proceder-pago" class="btn btn-ferre w-100 py-2 fs-5 shadow-sm">
+                        <i class="bi bi-lock-fill me-2"></i>Proceder al Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Estado Vacío (se activa si no hay ítems o si se vacía con JS) -->
+    <div id="carrito-vacio-aviso" class="card border-0 shadow-sm py-5 text-center my-4 {% if items_carrito %}d-none{% endif %}">
+        <div class="card-body">
+            <i class="bi bi-cart-x text-muted display-1 mb-3"></i>
+            <h4 class="fw-bold">Tu carrito de compras está vacío</h4>
+            <p class="text-secondary">Explora nuestro inventario y añade las herramientas que necesitas.</p>
+            <a href="/ferreteria/catalogo/" class="btn btn-ferre btn-lg mt-2 px-4">
+                <i class="bi bi-tools me-2"></i>Ir al Catálogo
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
